@@ -1,5 +1,6 @@
 package com.anuj.cinders.activities;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -56,6 +57,8 @@ public class ClubActivity extends AppCompatActivity {
     List<Venue> venues;
 
     ClubHomeAdapter clubHomeAdapter;
+
+    private android.support.v4.widget.SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +123,23 @@ public class ClubActivity extends AppCompatActivity {
 
         // give our custom adapter to the recycler view
         clubViewRecyclerView.setAdapter(clubHomeAdapter);
+
+
+        // Lookup the swipe container view
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                //set the maxId to zero
+
+                venues.clear(); //clear list
+                clubHomeAdapter.notifyDataSetChanged();
+                ParseObject venue = new ParseObject("venue");
+                getVenuesNearMe(venue);
+            }
+        });
     }
 
     private void getVenuesNearMe( ParseObject venue ){
@@ -198,6 +218,8 @@ public class ClubActivity extends AppCompatActivity {
 
                 venues.add(venue);
                 clubHomeAdapter.notifyDataSetChanged();
+                swipeContainer.setRefreshing(false);
+
 
             }
         });
